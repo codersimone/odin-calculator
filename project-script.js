@@ -10,7 +10,7 @@ const operations = {
 };
 
 const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-const operators = ['+', '-', '*', '/'];
+const operators = ['\u002B', '\u2212', '\u00D7', '\u00F7'];
 const specialBtns = [
     { label: '=', className: 'equal-btn' },
     { label: '.', className: 'decimal-btn' },
@@ -70,14 +70,14 @@ function createCalculatorUI() {
     digits.forEach((digit) => {
         const btn = document.createElement('button');
         btn.classList.add('digit-btn');
-        btn.textContent = 'digit';
+        btn.textContent = digit;
         calculatorContainer.appendChild(btn);
     });
 
     operators.forEach((operator) => {
         const btn = document.createElement('button');
         btn.classList.add('operator-btn');
-        btn.textContent = 'operator';
+        btn.textContent = operator;
         calculatorContainer.appendChild(btn);
     });
 
