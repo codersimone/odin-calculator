@@ -45,6 +45,10 @@ function operate(operator, a, b) {
     let numOne = toNumType(a);
     let numTwo = toNumType(b);
 
+    if (isNaN(numOne) || isNaN(numTwo)) {
+        return `Error: enter a number!`;
+    }
+
     if (operator in operations) {
         return operations[operator](numOne, numTwo);
     } else {
@@ -86,3 +90,5 @@ function createCalculatorUI() {
 
     document.body.appendChild(calculatorContainer);
 }
+
+createCalculatorUI();
