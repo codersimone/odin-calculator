@@ -123,6 +123,10 @@ function createCalculatorUI() {
     document.body.appendChild(calculatorContainer);
 }
 
+function whitespacedDisplay() {
+    return `${firstNum} ${currentOperator} ${secondNum}`.trim();
+}
+
 function updateDisplay(value) {
     const display = document.querySelector('.calculator-display');
     if (display) {
@@ -144,7 +148,7 @@ function onClickDigit(digit) {
         secondNum += digit;
     }
 
-    updateDisplay(firstNum + currentOperator + secondNum);
+    updateDisplay(whitespacedDisplay());
 }
 
 function onClickOperator(selectedOperator) {
@@ -160,7 +164,7 @@ function onClickOperator(selectedOperator) {
     // Re-selecting the operator without the second number (just replace it).
     if (currentOperator && !secondNum) {
         currentOperator = convertedOperator;
-        updateDisplay(firstNum + currentOperator);
+        updateDisplay(whitespacedDisplay());
         return;
     }
 
@@ -177,7 +181,7 @@ function onClickOperator(selectedOperator) {
     // If there is at least a firstNum, record the selected operator and update the display (show that the user has started a new input).
     if (firstNum) {
         currentOperator = convertedOperator;
-        updateDisplay(firstNum + currentOperator);
+        updateDisplay(whitespacedDisplay());
     }
 }
 
@@ -209,7 +213,7 @@ function onClickDecimal() {
         }
     }
 
-    updateDisplay(firstNum + currentOperator + secondNum);
+    updateDisplay(whitespacedDisplay());
 }
 
 function onClickClear() {
@@ -225,11 +229,11 @@ function onClickBackspace() {
 
     if (currentOperator === '') {
         firstNum = firstNum.slice(0, -1);
-        updateDisplay(firstNum || '0');
     } else {
         secondNum = secondNum.slice(0, -1);
-        updateDisplay(secondNum || '0');
     }
+
+    updateDisplay(whitespacedDisplay() || '0');
 }
 
 createCalculatorUI();
