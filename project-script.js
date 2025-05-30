@@ -57,6 +57,14 @@ function operate(operator, a, b) {
     }
 }
 
+function round(value) {
+    if (typeof value === 'number' && !Number.isInteger(value)) {
+        return Number(value.toFixed(6));
+    } else {
+        return value;
+    }
+}
+
 function createCalculatorUI() {
     const calculatorContainer = document.createElement('div');
     calculatorContainer.classList.add('calculator-container');
@@ -146,6 +154,7 @@ function onClickOperator(selectedOperator) {
         '\u00D7': '*',
         '\u00F7': '/',
     };
+
     if (firstNum) {
         if (displayedResult) {
             displayedResult = false;
@@ -158,7 +167,9 @@ function onClickOperator(selectedOperator) {
 
 function onClickEqual() {
     if (firstNum && currentOperator && secondNum) {
-        const resultValue = operate(currentOperator, firstNum, secondNum);
+        const resultValue = round(
+            operate(currentOperator, firstNum, secondNum)
+        );
         updateDisplay(resultValue);
         firstNum = resultValue.toString();
         secondNum = '';
