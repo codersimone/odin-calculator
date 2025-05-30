@@ -229,7 +229,13 @@ function onClickBackspace() {
 
     if (currentOperator === '') {
         firstNum = firstNum.slice(0, -1);
-    } else {
+    }
+
+    if (currentOperator !== '' && secondNum === '') {
+        currentOperator = '';
+    }
+
+    if (secondNum !== '') {
         secondNum = secondNum.slice(0, -1);
     }
 
