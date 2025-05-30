@@ -1,6 +1,7 @@
 let firstNum = '';
 let secondNum = '';
-let operator = '';
+let currentOperator = '';
+let displayedResult = false;
 
 const operations = {
     '+': add,
@@ -71,6 +72,9 @@ function createCalculatorUI() {
         const btn = document.createElement('button');
         btn.classList.add('digit-btn');
         btn.textContent = digit;
+        btn.addEventListener('click', () => {
+            onClickDigit(digit);
+        });
         calculatorContainer.appendChild(btn);
     });
 
@@ -78,6 +82,9 @@ function createCalculatorUI() {
         const btn = document.createElement('button');
         btn.classList.add('operator-btn');
         btn.textContent = operator;
+        btn.addEventListener('click', () => {
+            onClickOperator(operator);
+        });
         calculatorContainer.appendChild(btn);
     });
 
@@ -85,10 +92,115 @@ function createCalculatorUI() {
         const btn = document.createElement('button');
         btn.classList.add(className);
         btn.textContent = label;
+
+        if (label === '=') {
+            btn.addEventListener('click', onClickEqual);
+        }
+
+        if (label === '.') {
+            btn.addEventListener('click', onClickDecimal);
+        }
+
+        if (label === 'clear') {
+            btn.addEventListener('click', onClickClear);
+        }
+
+        if (label === 'backspace') {
+            btn.addEventListener('click', onClickBackspace);
+        }
+
         calculatorContainer.appendChild(btn);
     });
 
     document.body.appendChild(calculatorContainer);
+}
+
+function updateDisplay(value) {
+    const display = document.querySelector('.calculator-display');
+    if (display) {
+        display.value = value;
+    }
+}
+
+function onClickDigit(digit) {
+    if (displayedResult && currentOperator === '') {
+        firstNum = '';
+        secondNum = '';
+        currentOperator = '';
+        displayedResult = false;
+    }
+
+    if (currentOperator === '') {
+        firstNum += digit;
+    } else {
+        secondNum += digit;
+    }
+
+    updateDisplay(firstNum + currentOperator + secondNum);
+}
+
+function onClickOperator(selectedOperator) {
+    const normalizeOperators = {
+        '\u002B': '+',
+        '\u2212': '-',
+        '\u00D7': '*',
+        '\u00F7': '/',
+    };
+    if (firstNum) {
+        if (displayedResult) {
+            displayedResult = false;
+            secondNum = '';
+        }
+        currentOperator = normalizeOperators[selectedOperator];
+        updateDisplay(firstNum + currentOperator);
+    }
+}
+
+function onClickEqual() {
+    if (firstNum && currentOperator && secondNum) {
+        const resultValue = operate(currentOperator, firstNum, secondNum);
+        updateDisplay(resultValue);
+        firstNum = resultValue.toString();
+        secondNum = '';
+        currentOperator = '';
+        displayedResult = true;
+    }
+}
+
+function onClickDecimal() {
+    if (displayedResult) return;
+
+    if (currentOperator === '') {
+        if (!firstNum.includes('.')) {
+            firstNum += firstNum === '' ? '0.' : '.';
+            updateDisplay(firstNum);
+        }
+    } else {
+        if (!secondNum.includes('.')) {
+            secondNum += secondNum === '' ? '0.' : '.';
+            updateDisplay(secondNum);
+        }
+    }
+}
+
+function onClickClear() {
+    firstNum = '';
+    secondNum = '';
+    currentOperator = '';
+    displayedResult = false;
+    updateDisplay('0');
+}
+
+function onClickBackspace() {
+    if (displayedResult) return;
+
+    if (currentOperator === '') {
+        firstNum = firstNum.slice(0, -1);
+        updateDisplay(firstNum || '0');
+    } else {
+        secondNum = secondNum.slice(0, -1);
+        updateDisplay(secondNum || '0');
+    }
 }
 
 createCalculatorUI();
