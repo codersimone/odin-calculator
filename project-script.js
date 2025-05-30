@@ -174,6 +174,7 @@ function onClickOperator(selectedOperator) {
         displayedResult = false;
     }
 
+    // If there is at least a firstNum, record the selected operator and update the display (show that the user has started a new input).
     if (firstNum) {
         currentOperator = convertedOperator;
         updateDisplay(firstNum + currentOperator);
@@ -199,14 +200,16 @@ function onClickDecimal() {
     if (currentOperator === '') {
         if (!firstNum.includes('.')) {
             firstNum += firstNum === '' ? '0.' : '.';
-            updateDisplay(firstNum);
-        }
-    } else {
-        if (!secondNum.includes('.')) {
-            secondNum += secondNum === '' ? '0.' : '.';
-            updateDisplay(secondNum);
         }
     }
+
+    if (currentOperator !== '') {
+        if (!secondNum.includes('.')) {
+            secondNum += secondNum === '' ? '0.' : '.';
+        }
+    }
+
+    updateDisplay(firstNum + currentOperator + secondNum);
 }
 
 function onClickClear() {
