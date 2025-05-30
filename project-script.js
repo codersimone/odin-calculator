@@ -155,23 +155,38 @@ function onClickOperator(selectedOperator) {
         '\u00F7': '/',
     };
 
+    const convertedOperator = normalizeOperators[selectedOperator];
+
+    // Re-selecting the operator without the second number (just replace it).
+    if (currentOperator && !secondNum) {
+        currentOperator = convertedOperator;
+        updateDisplay(firstNum + currentOperator);
+        return;
+    }
+
+    // If all the data is available, calculate the result before the new statement.
+    if (firstNum && currentOperator && secondNum) {
+        const resultValueOperator = round(
+            operate(currentOperator, firstNum, secondNum)
+        );
+        firstNum = resultValueOperator.toString();
+        secondNum = '';
+        displayedResult = false;
+    }
+
     if (firstNum) {
-        if (displayedResult) {
-            displayedResult = false;
-            secondNum = '';
-        }
-        currentOperator = normalizeOperators[selectedOperator];
+        currentOperator = convertedOperator;
         updateDisplay(firstNum + currentOperator);
     }
 }
 
 function onClickEqual() {
     if (firstNum && currentOperator && secondNum) {
-        const resultValue = round(
+        const resultValueEqual = round(
             operate(currentOperator, firstNum, secondNum)
         );
-        updateDisplay(resultValue);
-        firstNum = resultValue.toString();
+        updateDisplay(resultValueEqual);
+        firstNum = resultValueEqual.toString();
         secondNum = '';
         currentOperator = '';
         displayedResult = true;
