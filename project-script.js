@@ -69,6 +69,11 @@ function createCalculatorUI() {
     const calculatorContainer = document.createElement('div');
     calculatorContainer.classList.add('calculator-container');
 
+    const calculatorTitle = document.createElement('h1');
+    calculatorTitle.classList.add('calculator-title');
+    calculatorTitle.textContent = 'Just calculate it';
+    calculatorContainer.appendChild(calculatorTitle);
+
     const calculatorDisplay = document.createElement('input');
     calculatorDisplay.classList.add('calculator-display');
     calculatorDisplay.type = 'text';
@@ -122,6 +127,47 @@ function createCalculatorUI() {
 
     document.body.appendChild(calculatorContainer);
 }
+
+// Keyboard support
+document.addEventListener('keydown', (event) => {
+    const key = event.key;
+
+    if (digits.includes(key)) {
+        onClickDigit(key);
+        return;
+    }
+
+    if (['+', '-', '*', '/'].includes(key)) {
+        const normalizeSymbols = {
+            '+': '\u002B',
+            '-': '\u2212',
+            '*': '\u00D7',
+            '/': '\u00F7',
+        };
+        onClickOperator(normalizeSymbols[key]);
+        return;
+    }
+
+    if (key === '=' || key === 'Enter') {
+        onClickEqual();
+        return;
+    }
+
+    if (key === '.' || key === ',') {
+        onClickDecimal();
+        return;
+    }
+
+    if (key.toLowerCase() === 'c' || key === 'Escape') {
+        onClickClear();
+        return;
+    }
+
+    if (key === 'Backspace') {
+        onClickBackspace();
+        return;
+    }
+});
 
 function whitespacedDisplay() {
     return `${firstNum} ${currentOperator} ${secondNum}`.trim();
