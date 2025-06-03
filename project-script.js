@@ -175,10 +175,20 @@ function whitespacedDisplay() {
 
 function updateDisplay(value) {
     const display = document.querySelector('.calculator-display');
-    if (display) {
-        display.value = value;
-        adjustFontSize(display);
-    }
+    if (!display) return;
+
+    value = String(value).slice(0, 20);
+    display.value = value;
+    adjustFontSize(display);
+}
+
+function disabledButtons() {
+    const selectedBtns = document.querySelectorAll('.digit-btn, .decimal-btn');
+    const totalInputLength = (firstNum + currentOperator + secondNum).length;
+
+    selectedBtns.forEach((btn) => {
+        btn.disabled = totalInputLength >= 20;
+    });
 }
 
 function adjustFontSize(display) {
@@ -201,6 +211,9 @@ function adjustFontSize(display) {
 }
 
 function onClickDigit(digit) {
+    const totalInputLength = (firstNum + currentOperator + secondNum).length;
+    if (totalInputLength >= 20) return;
+
     if (displayedResult && currentOperator === '') {
         firstNum = '';
         secondNum = '';
@@ -215,6 +228,7 @@ function onClickDigit(digit) {
     }
 
     updateDisplay(whitespacedDisplay());
+    disabledButtons();
 }
 
 function onClickOperator(selectedOperator) {
@@ -231,7 +245,7 @@ function onClickOperator(selectedOperator) {
     if (currentOperator && !secondNum) {
         currentOperator = convertedOperator;
         updateDisplay(whitespacedDisplay());
-        return;
+        disabledButtons();
     }
 
     // If all the data is available, calculate the result before the new statement.
@@ -239,19 +253,25 @@ function onClickOperator(selectedOperator) {
         const resultValueOperator = round(
             operate(currentOperator, firstNum, secondNum)
         );
-        firstNum = resultValueOperator.toString();
+        firstNum = String(resultValueOperator);
         secondNum = '';
         displayedResult = false;
+        updateDisplay(whitespacedDisplay());
+        disabledButtons();
     }
 
     // If there is at least a firstNum, record the selected operator and update the display (show that the user has started a new input).
     if (firstNum) {
         currentOperator = convertedOperator;
         updateDisplay(whitespacedDisplay());
+        disabledButtons();
     }
 }
 
 function onClickDecimal() {
+    const totalInputLength = (firstNum + currentOperator + secondNum).length;
+    if (totalInputLength >= 20) return;
+
     if (displayedResult) return;
 
     if (currentOperator === '') {
@@ -267,6 +287,7 @@ function onClickDecimal() {
     }
 
     updateDisplay(whitespacedDisplay());
+    disabledButtons();
 }
 
 function onClickEqual() {
@@ -275,7 +296,7 @@ function onClickEqual() {
             operate(currentOperator, firstNum, secondNum)
         );
         updateDisplay(resultValueEqual);
-        firstNum = resultValueEqual.toString();
+        firstNum = String(resultValueEqual);
         secondNum = '';
         currentOperator = '';
         displayedResult = true;
@@ -288,6 +309,7 @@ function onClickClear() {
     currentOperator = '';
     displayedResult = false;
     updateDisplay('0');
+    disabledButtons();
 }
 
 function onClickBackspace() {
@@ -306,6 +328,7 @@ function onClickBackspace() {
     }
 
     updateDisplay(whitespacedDisplay() || '0');
+    disabledButtons();
 }
 
 createCalculatorUI();
