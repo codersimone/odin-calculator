@@ -10,14 +10,14 @@ const operations = {
     '/': divide,
 };
 
-const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-const operators = ['\u002B', '\u2212', '\u00D7', '\u00F7'];
+const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 const specialBtns = [
-    { label: '=', className: 'equal-btn' },
     { label: '.', className: 'decimal-btn' },
+    { label: '=', className: 'equal-btn' },
     { label: 'clear', className: 'clear-btn' },
     { label: 'backspace', className: 'backspace-btn' },
 ];
+const operators = ['\u002B', '\u2212', '\u00D7', '\u00F7'];
 
 function add(a, b) {
     return a + b;
@@ -106,12 +106,12 @@ function createCalculatorUI() {
         btn.classList.add(className);
         btn.textContent = label;
 
-        if (label === '=') {
-            btn.addEventListener('click', onClickEqual);
-        }
-
         if (label === '.') {
             btn.addEventListener('click', onClickDecimal);
+        }
+
+        if (label === '=') {
+            btn.addEventListener('click', onClickEqual);
         }
 
         if (label === 'clear') {
@@ -148,13 +148,13 @@ document.addEventListener('keydown', (event) => {
         return;
     }
 
-    if (key === '=' || key === 'Enter') {
-        onClickEqual();
+    if (key === '.' || key === ',') {
+        onClickDecimal();
         return;
     }
 
-    if (key === '.' || key === ',') {
-        onClickDecimal();
+    if (key === '=' || key === 'Enter') {
+        onClickEqual();
         return;
     }
 
@@ -177,6 +177,26 @@ function updateDisplay(value) {
     const display = document.querySelector('.calculator-display');
     if (display) {
         display.value = value;
+        adjustFontSize(display);
+    }
+}
+
+function adjustFontSize(display) {
+    const length = display.value.length;
+
+    if (length <= 10) {
+        display.style.fontSize = '4rem';
+        return;
+    }
+
+    if (length <= 15) {
+        display.style.fontSize = '3rem';
+        return;
+    }
+
+    if (length <= 20) {
+        display.style.fontSize = '2.2rem';
+        return;
     }
 }
 
@@ -231,19 +251,6 @@ function onClickOperator(selectedOperator) {
     }
 }
 
-function onClickEqual() {
-    if (firstNum && currentOperator && secondNum) {
-        const resultValueEqual = round(
-            operate(currentOperator, firstNum, secondNum)
-        );
-        updateDisplay(resultValueEqual);
-        firstNum = resultValueEqual.toString();
-        secondNum = '';
-        currentOperator = '';
-        displayedResult = true;
-    }
-}
-
 function onClickDecimal() {
     if (displayedResult) return;
 
@@ -260,6 +267,19 @@ function onClickDecimal() {
     }
 
     updateDisplay(whitespacedDisplay());
+}
+
+function onClickEqual() {
+    if (firstNum && currentOperator && secondNum) {
+        const resultValueEqual = round(
+            operate(currentOperator, firstNum, secondNum)
+        );
+        updateDisplay(resultValueEqual);
+        firstNum = resultValueEqual.toString();
+        secondNum = '';
+        currentOperator = '';
+        displayedResult = true;
+    }
 }
 
 function onClickClear() {
