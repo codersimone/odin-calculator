@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  height: 100vh;
+  font-family: "Orbitron", sans-serif;
+  background: linear-gradient(to bottom, rgb(201, 214, 255), rgb(226, 226, 226));
+}
+
+input,
+button {
+  font-family: inherit;
+}
+
+/* button lock when the input is overflowed by more than 18 characters */
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.calculator-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 90%;
+  max-width: 420px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+
+.calculator-title {
+  text-align: center;
+  margin: 1rem;
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  text-shadow: 1px, 1px, 3px, rgba(0,0,0,0.3);
+}
+
+.error-message {
+  font-size: 1.4rem;
+  color: rgba(255, 100, 100, 0.6);
+}
+
+.calculator-display {
+  text-align: right;
+  padding: 1rem;
+  font-size: 2.6rem;
+  color:  rgb(130, 160, 255);
+  background: transparent;
+  border: none;
+}
+
+.buttons-container {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  box-sizing: border-box;
+}
+
+.left-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1 1 70%;
+}
+
+/* The left part contains all the usual buttons (3 in a row) */
+.left-buttons button {
+  width: calc((100% - 1rem) / 3);
+  padding: 1rem 0;
+  font-size: 1.5rem;
+  color: rgb(51, 51, 51);
+  background-color: rgba(130, 160, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.left-buttons button:hover {
+  background-color: rgba(130, 160, 255, 0.4);
+}
+
+/* The left part is the last row of buttons (2 in a row of 1.5 widths of the upper rows of 3 in a row) */
+.bottom-btns-container {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.bottom-btns-container .clear-btn,
+.bottom-btns-container .backspace-btn {
+  width: calc((100% - 0.5rem) / 2);
+  flex: 0 0 calc(47.7% + 0.25rem);
+  background-color: rgba(255, 100, 100, 0.2);
+}
+
+.bottom-btns-container .clear-btn:hover,
+.bottom-btns-container .backspace-btn:hover {
+  background-color: rgba(255, 100, 100, 0.4);
+}
+
+/* The right part contains the operators */
+.right-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 0 0 3.5rem;
+}
+
+.operator-btn {
+  flex: 1 1 0;
+  font-size: 2.2rem;
+  color: rgb(51, 51, 51);
+  background-color: rgba(255, 100, 100, 0.2);
+  border: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.operator-btn:hover {
+  background-color: rgba(255, 100, 100, 0.4);
+}
