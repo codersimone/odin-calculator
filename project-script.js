@@ -1,13 +1,17 @@
 let firstNum = '';
 let secondNum = '';
 let currentOperator = '';
+let savedFirstNum = '';
+let savedSecondNum = '';
+let savedCurrentOperator = '';
 let displayedResult = false;
+let hasError = false;
 
 const operations = {
-    '+': add,
-    '-': subtract,
-    '*': multiply,
-    '/': divide,
+    '+': (a, b) => a + b,
+    '-': (a, b) => a - b,
+    '*': (a, b) => a * b,
+    '/': (a, b) => (b === 0 ? checkError(`Error: can't divide by 0!`) : a / b),
 };
 
 const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
@@ -19,23 +23,22 @@ const specialBtns = [
 ];
 const operators = ['\u002B', '\u2212', '\u00D7', '\u00F7'];
 
-function add(a, b) {
-    return a + b;
+function checkError(message) {
+    hasError = true;
+    savedFirstNum = firstNum;
+    savedSecondNum = secondNum;
+    savedCurrentOperator = currentOperator;
+    updateDisplay('0');
+    changeTitle(message);
 }
 
-function subtract(a, b) {
-    return a - b;
-}
-
-function multiply(a, b) {
-    return a * b;
-}
-
-function divide(a, b) {
-    if (b === 0) {
-        return `Error: can't divide by 0!`;
-    }
-    return a / b;
+function resetError() {
+    firstNum = '';
+    secondNum = '';
+    currentOperator = '';
+    displayedResult = false;
+    hasError = false;
+    resetTitle();
 }
 
 function toNumType(value) {
@@ -46,14 +49,21 @@ function operate(operator, a, b) {
     let numOne = toNumType(a);
     let numTwo = toNumType(b);
 
-    if (isNaN(numOne) || isNaN(numTwo)) {
-        return `Error: enter a number!`;
+    if (Number.isNaN(numOne) || Number.isNaN(numTwo)) {
+        checkError(`Error: enter a number!`);
+        return;
+    }
+
+    if (operator === '/' && numTwo === 0) {
+        checkError(`Error: can't divide by 0!`);
+        return;
     }
 
     if (operator in operations) {
         return operations[operator](numOne, numTwo);
     } else {
-        return `Error: unknown operator!`;
+        checkError(`Error: unknown operator!`);
+        return;
     }
 }
 
@@ -72,58 +82,67 @@ function createCalculatorUI() {
     const calculatorTitle = document.createElement('h1');
     calculatorTitle.classList.add('calculator-title');
     calculatorTitle.textContent = 'Just calculate it';
-    calculatorContainer.appendChild(calculatorTitle);
 
     const calculatorDisplay = document.createElement('input');
     calculatorDisplay.classList.add('calculator-display');
     calculatorDisplay.type = 'text';
     calculatorDisplay.value = '0';
     calculatorDisplay.readOnly = true;
-    calculatorContainer.appendChild(calculatorDisplay);
+
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.classList.add('buttons-container');
+
+    const leftButtons = document.createElement('div');
+    leftButtons.classList.add('left-buttons');
 
     digits.forEach((digit) => {
         const btn = document.createElement('button');
         btn.classList.add('digit-btn');
         btn.textContent = digit;
-        btn.addEventListener('click', () => {
-            onClickDigit(digit);
-        });
-        calculatorContainer.appendChild(btn);
+        btn.addEventListener('click', () => onClickDigit(digit));
+        leftButtons.appendChild(btn);
     });
 
-    operators.forEach((operator) => {
-        const btn = document.createElement('button');
-        btn.classList.add('operator-btn');
-        btn.textContent = operator;
-        btn.addEventListener('click', () => {
-            onClickOperator(operator);
-        });
-        calculatorContainer.appendChild(btn);
-    });
+    const bottomBtnsContainer = document.createElement('div');
+    bottomBtnsContainer.classList.add('bottom-btns-container');
 
     specialBtns.forEach(({ label, className }) => {
         const btn = document.createElement('button');
         btn.classList.add(className);
         btn.textContent = label;
 
-        if (label === '.') {
-            btn.addEventListener('click', onClickDecimal);
-        }
-
-        if (label === '=') {
-            btn.addEventListener('click', onClickEqual);
-        }
-
-        if (label === 'clear') {
-            btn.addEventListener('click', onClickClear);
-        }
-
-        if (label === 'backspace') {
+        if (label === '.') btn.addEventListener('click', onClickDecimal);
+        if (label === '=') btn.addEventListener('click', onClickEqual);
+        if (label === 'clear') btn.addEventListener('click', onClickClear);
+        if (label === 'backspace')
             btn.addEventListener('click', onClickBackspace);
-        }
 
-        calculatorContainer.appendChild(btn);
+        if (className === 'clear-btn' || className === 'backspace-btn') {
+            bottomBtnsContainer.appendChild(btn);
+        } else {
+            leftButtons.appendChild(btn);
+        }
     });
+
+    const rightButtons = document.createElement('div');
+    rightButtons.classList.add('right-buttons');
+
+    operators.forEach((operator) => {
+        const btn = document.createElement('button');
+        btn.classList.add('operator-btn');
+        btn.textContent = operator;
+        btn.addEventListener('click', () => onClickOperator(operator));
+        rightButtons.appendChild(btn);
+    });
+
+    leftButtons.appendChild(bottomBtnsContainer);
+
+    buttonsContainer.appendChild(leftButtons);
+    buttonsContainer.appendChild(rightButtons);
+
+    calculatorContainer.appendChild(calculatorTitle);
+    calculatorContainer.appendChild(calculatorDisplay);
+    calculatorContainer.appendChild(buttonsContainer);
 
     document.body.appendChild(calculatorContainer);
 }
@@ -138,48 +157,54 @@ document.addEventListener('keydown', (event) => {
     }
 
     if (['+', '-', '*', '/'].includes(key)) {
-        const normalizeSymbols = {
+        const normalizedSymbols = {
             '+': '\u002B',
             '-': '\u2212',
             '*': '\u00D7',
             '/': '\u00F7',
         };
-        onClickOperator(normalizeSymbols[key]);
+        onClickOperator(normalizedSymbols[key]);
         return;
     }
 
-    if (key === '.' || key === ',') {
-        onClickDecimal();
-        return;
-    }
-
-    if (key === '=' || key === 'Enter') {
-        onClickEqual();
-        return;
-    }
-
-    if (key.toLowerCase() === 'c' || key === 'Escape') {
-        onClickClear();
-        return;
-    }
-
-    if (key === 'Backspace') {
-        onClickBackspace();
-        return;
-    }
+    if (key === '.' || key === ',') return onClickDecimal();
+    if (key === '=' || key === 'Enter') return onClickEqual();
+    if (key.toLowerCase() === 'c' || key === 'Escape') return onClickClear();
+    if (key === 'Backspace') return onClickBackspace();
 });
 
 function whitespacedDisplay() {
-    return `${firstNum} ${currentOperator} ${secondNum}`.trim();
+    const denormalizedOperators = {
+        '+': '\u002B',
+        '-': '\u2212',
+        '*': '\u00D7',
+        '/': '\u00F7',
+    };
+
+    const displayedOperators =
+        denormalizedOperators[currentOperator] || currentOperator;
+
+    return `${firstNum} ${displayedOperators} ${secondNum}`.trim();
 }
 
 function updateDisplay(value) {
     const display = document.querySelector('.calculator-display');
     if (!display) return;
 
-    value = String(value).slice(0, 20);
-    display.value = value;
+    display.value = String(value).slice(0, 18);
     adjustFontSize(display);
+}
+
+function changeTitle(message) {
+    const changedCalculatorTitle = document.querySelector('.calculator-title');
+    changedCalculatorTitle.textContent = message;
+    changedCalculatorTitle.classList.add('error-message');
+}
+
+function resetTitle() {
+    const resetedCalculatorTitle = document.querySelector('.calculator-title');
+    resetedCalculatorTitle.textContent = 'Just calculate it';
+    resetedCalculatorTitle.classList.remove('error-message');
 }
 
 function disabledButtons() {
@@ -187,32 +212,18 @@ function disabledButtons() {
     const totalInputLength = (firstNum + currentOperator + secondNum).length;
 
     selectedBtns.forEach((btn) => {
-        btn.disabled = totalInputLength >= 20;
+        btn.disabled = totalInputLength >= 18;
     });
 }
 
 function adjustFontSize(display) {
-    const length = display.value.length;
-
-    if (length <= 10) {
-        display.style.fontSize = '4rem';
-        return;
-    }
-
-    if (length <= 15) {
-        display.style.fontSize = '3rem';
-        return;
-    }
-
-    if (length <= 20) {
-        display.style.fontSize = '2.2rem';
-        return;
-    }
+    display.style.fontSize = display.value.length <= 10 ? '2.6rem' : '1.6rem';
 }
 
 function onClickDigit(digit) {
-    const totalInputLength = (firstNum + currentOperator + secondNum).length;
-    if (totalInputLength >= 20) return;
+    if ((firstNum + currentOperator + secondNum).length >= 18) return;
+
+    if (hasError) resetError();
 
     if (displayedResult && currentOperator === '') {
         firstNum = '';
@@ -232,14 +243,16 @@ function onClickDigit(digit) {
 }
 
 function onClickOperator(selectedOperator) {
-    const normalizeOperators = {
+    const normalizedOperators = {
         '\u002B': '+',
         '\u2212': '-',
         '\u00D7': '*',
         '\u00F7': '/',
     };
 
-    const convertedOperator = normalizeOperators[selectedOperator];
+    const convertedOperator = normalizedOperators[selectedOperator];
+
+    if (hasError) resetError();
 
     // Re-selecting the operator without the second number (just replace it).
     if (currentOperator && !secondNum) {
@@ -269,10 +282,9 @@ function onClickOperator(selectedOperator) {
 }
 
 function onClickDecimal() {
-    const totalInputLength = (firstNum + currentOperator + secondNum).length;
-    if (totalInputLength >= 20) return;
+    if ((firstNum + currentOperator + secondNum).length >= 18) return;
 
-    if (displayedResult) return;
+    if (hasError) resetError();
 
     if (currentOperator === '') {
         if (!firstNum.includes('.')) {
@@ -292,14 +304,18 @@ function onClickDecimal() {
 
 function onClickEqual() {
     if (firstNum && currentOperator && secondNum) {
-        const resultValueEqual = round(
-            operate(currentOperator, firstNum, secondNum)
-        );
-        updateDisplay(resultValueEqual);
+        const resultValueEqual = operate(currentOperator, firstNum, secondNum);
+
+        if (resultValueEqual === undefined) {
+            return;
+        }
+
+        updateDisplay(round(resultValueEqual));
         firstNum = String(resultValueEqual);
         secondNum = '';
         currentOperator = '';
         displayedResult = true;
+        resetTitle();
     }
 }
 
@@ -310,9 +326,18 @@ function onClickClear() {
     displayedResult = false;
     updateDisplay('0');
     disabledButtons();
+    resetTitle();
 }
 
 function onClickBackspace() {
+    if (hasError) {
+        firstNum = savedFirstNum;
+        secondNum = savedSecondNum;
+        currentOperator = savedCurrentOperator;
+        hasError = false;
+        resetTitle();
+    }
+
     if (displayedResult) return;
 
     if (currentOperator === '') {
